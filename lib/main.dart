@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:video_player/video_player.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,119 +10,217 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: "Video Player with PageView Demo",
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const SamplePageView(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class SamplePageView extends StatefulWidget {
+  const SamplePageView({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<SamplePageView> createState() => _SamplePageViewState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _SamplePageViewState extends State<SamplePageView> {
+  List<String> videos = [];
+  List<String> videoThumbnails = [];
 
-  void _incrementCounter() {
+  @override
+  void initState() {
+    super.initState();
+
+    /// generate a list of 100 random videos
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      for (var i = 0; i < 100; i++) {
+        switch (i % 3) {
+          case 0:
+            videos.add(
+                "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4");
+            break;
+          case 1:
+            videos.add(
+                "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
+            break;
+          case 2:
+            videos.add(
+                "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+            break;
+        }
+      }
+    });
+
+    /// generate a list of 100 random video thumbnails
+    setState(() {
+      for (var i = 0; i < 100; i++) {
+        switch (i % 3) {
+          case 0:
+            videoThumbnails.add(
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg");
+            break;
+          case 1:
+            videoThumbnails.add(
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg");
+            break;
+          case 2:
+            videoThumbnails.add(
+                "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg");
+            break;
+        }
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+      body: PageView.builder(
+        itemCount: 100,
+        itemBuilder: (context, index) {
+          return CentralVideoPlayer(
+            videoUrl: videos[index],
+            videoThumbnail: videoThumbnails[index],
+            isMuted: false,
+          );
+        },
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class CentralVideoPlayer extends StatefulWidget {
+  const CentralVideoPlayer(
+      {required this.videoUrl,
+      required this.videoThumbnail,
+      this.videoFile,
+      this.isDiscover = false,
+      this.isMuted = false,
+      super.key});
+
+  final String videoUrl;
+  final String videoThumbnail;
+  final File? videoFile;
+  final bool isDiscover;
+  final bool isMuted;
+
+  @override
+  State<CentralVideoPlayer> createState() => _CentralVideoPlayerState();
+}
+
+class _CentralVideoPlayerState extends State<CentralVideoPlayer> {
+  VideoPlayerController? videoController;
+  bool isVideoInitialized = false;
+
+  initializeVideo() async {
+    if (widget.isMuted) {
+      /// video not in view direct view so:
+
+      /// cache video as a file with the DefaultCacheManager for later consumption
+      /// video is only cached once then file is used for all future plays
+      var file = await DefaultCacheManager().getSingleFile(widget.videoUrl);
+
+      /// ... play cached video
+      videoController = VideoPlayerController.file(
+        file,
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: true,
+        ),
+      )
+        ..setLooping(true)
+        ..initialize().then((_) {
+          if (mounted) {
+            setState(() {});
+          }
+
+          videoController!.setVolume(0);
+
+          videoController!.play();
+        });
+    } else {
+      /// ... do something with volume
+
+      /// cache video as a file with the DefaultCacheManager for later consumption
+      /// video is only cached once then file is used for all future plays
+      var file = await DefaultCacheManager().getSingleFile(widget.videoUrl);
+
+      /// ... play cached video
+      videoController = VideoPlayerController.file(
+        file,
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: true,
+        ),
+      )
+        ..setLooping(true)
+        ..initialize().then((_) {
+          if (mounted) {
+            setState(() {});
+          }
+          if (mounted) {
+            /// ... do something with volume
+          }
+          if (widget.isMuted) {
+            videoController!.setVolume(0);
+          } else {
+            /// ... do something with volume
+          }
+
+          /// ... do something with volume
+          videoController!.play();
+        });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    initializeVideo();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          if (widget.videoThumbnail.isNotEmpty)
+            Positioned.fill(
+              child: Image.network(
+                widget.videoThumbnail,
+                fit: BoxFit.cover,
+              ),
+            ),
+          SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.cover,
+              child: videoController != null
+                  ? SizedBox(
+                      width: videoController!.value.size.width,
+                      height: videoController!.value.size.height,
+                      child: VideoPlayer(videoController!),
+                    )
+                  : widget.videoThumbnail.isNotEmpty
+                      ? Image.network(
+                          widget.videoThumbnail,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    videoController?.dispose();
+    super.dispose();
   }
 }
